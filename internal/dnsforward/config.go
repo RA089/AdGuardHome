@@ -278,11 +278,7 @@ func (s *Server) prepareUpstreamSettings() error {
 	upstreams = filterOutComments(upstreams)
 	upstreamConfig, err := proxy.ParseUpstreamsConfig(upstreams, s.conf.BootstrapDNS, DefaultTimeout)
 	if err != nil {
-		// TODO(e.burkov): The upstream validation should be performed
-		// before it is assigned to config, but does not yet, so we just
-		// use default settings instead.
-		log.Error("dns: proxy.ParseUpstreamsConfig: %s", err)
-		s.conf.UpstreamDNS = defaultDNS
+		return fmt.Errorf("dns: proxy.ParseUpstreamsConfig: %s", err)
 	}
 
 	if len(upstreamConfig.Upstreams) == 0 {
