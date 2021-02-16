@@ -278,11 +278,15 @@ func (s *Server) prepareUpstreamSettings() error {
 	upstreams = filterOutComments(upstreams)
 	upstreamConfig, err := proxy.ParseUpstreamsConfig(upstreams, s.conf.BootstrapDNS, DefaultTimeout)
 	if err != nil {
-		return fmt.Errorf("dns: proxy.ParseUpstreamsConfig: %w", err)
+		// TODO(e.burkov): The upstream validation should be performed
+		// before it is assigned to config, but does not yet, so we just
+		// use default settings instead.
+		log.Error("dns: proxy.ParseUpstreamsConfig: %s", err)
+		s.conf.UpstreamDNS = defaultDNS
 	}
 
 	if len(upstreamConfig.Upstreams) == 0 {
-		log.Info("Warning: no default upstream servers specified, using %v", defaultDNS)
+		log.Info("warning: no default upstream servers specified, using %v", defaultDNS)
 		uc, err := proxy.ParseUpstreamsConfig(defaultDNS, s.conf.BootstrapDNS, DefaultTimeout)
 		if err != nil {
 			return fmt.Errorf("dns: failed to parse default upstreams: %v", err)
